@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
@@ -21,6 +22,7 @@ namespace Simply.Translate.WPF
 
         public string Key { get; set; }
         public string DefaultValue { get; set; }
+        public string Language { get; set; }
         public string StringFormat { get; set; }
 
         /// <summary>
@@ -44,6 +46,8 @@ namespace Simply.Translate.WPF
         /// Converter to apply on the translated text
         /// </summary>
         public IValueConverter Converter { get; set; } = null;
+
+        public CultureInfo ConverterCulture { get; set; }
 
         /// <summary>
         /// The parameter to pass to the converter
@@ -104,13 +108,11 @@ namespace Simply.Translate.WPF
             {
                 Binding binding = new Binding("TranslatedText")
                 {
-                    Source = new TrData()
+                    Source = new Translation()
                     {
-                        TextId = TextId,
-                        DefaultText = DefaultText,
-                        LanguageId = LanguageId,
-                        Prefix = Prefix,
-                        Suffix = Suffix
+                        Key = Key,
+                        DefaultValue = DefaultValue,
+                        Language = Language
                     }
                 };
 
@@ -118,7 +120,7 @@ namespace Simply.Translate.WPF
                 {
                     binding.Converter = Converter;
                     binding.ConverterParameter = ConverterParameter;
-                    binding.ConverterCulture = ConverterCulture;
+                    //binding.ConverterCulture = ConverterCulture;
                 }
 
                 BindingOperations.SetBinding(targetObject, targetProperty, binding);
@@ -127,7 +129,7 @@ namespace Simply.Translate.WPF
             }
             else
             {
-                object result = Prefix + TM.Tr(TextId, DefaultText, LanguageId) + Suffix;
+                object result = Prefix + Translate.Get(Language, Key, DefaultValue) + Suffix;
 
                 if (Converter != null)
                 {
